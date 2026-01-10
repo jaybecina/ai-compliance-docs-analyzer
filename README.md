@@ -369,7 +369,7 @@ Created as a demonstration of modern full-stack development with AI integration.
 1. **"Cannot find module" errors**: Run `npm install` in both root and client directories
 2. **Anthropic API errors**: Verify your API key is correct and has sufficient credits
 3. **Pinecone connection issues**: Ensure your index dimensions match (1024) and the index name is correct
-4. **Port already in use**: Change the PORT in .env file or stop other applications using port 8000/5173
+4. **Port already in use**: Change the PORT in `backend/.env` (and `client/.env` if needed) or stop other applications using port 8000/5173
 
 ### Need Help?
 

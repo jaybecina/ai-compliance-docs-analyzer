@@ -32,37 +32,57 @@ print_info() {
     echo -e "ℹ️  $1"
 }
 
-# Check if .env file exists
-echo "Step 1: Checking environment configuration..."
-if [ ! -f .env ]; then
-    print_error ".env file not found!"
-    print_info "Creating .env template..."
-    
-    cat > .env << 'EOF'
+BACKEND_ENV_FILE="backend/.env"
+BACKEND_ENV_EXAMPLE_FILE="backend/.env.example"
+
+get_env_value() {
+    # Usage: get_env_value KEY FILE
+    # Prints the value for KEY=... in FILE, or empty string if missing.
+    local key="$1"
+    local file="$2"
+    grep -E "^${key}=" "$file" 2>/dev/null | head -n 1 | sed -E 's/^[^=]*=//'
+}
+
+# Check if backend/.env exists
+echo "Step 1: Checking backend environment configuration..."
+if [ ! -f "$BACKEND_ENV_FILE" ]; then
+    print_error "$BACKEND_ENV_FILE not found!"
+
+    if [ -f "$BACKEND_ENV_EXAMPLE_FILE" ]; then
+        print_info "Creating $BACKEND_ENV_FILE from $BACKEND_ENV_EXAMPLE_FILE..."
+        cp "$BACKEND_ENV_EXAMPLE_FILE" "$BACKEND_ENV_FILE"
+    else
+        print_info "Creating $BACKEND_ENV_FILE template..."
+        cat > "$BACKEND_ENV_FILE" << 'EOF'
 PORT=8000
-ANTHROPIC_API_KEY=your_anthropic_api_key_here
-PINECONE_API_KEY=your_pinecone_api_key_here
-PINECONE_INDEX=your_pinecone_index_name
+ANTHROPIC_API_KEY=sk-ant-xxxx
+PINECONE_API_KEY=xxxx
+PINECONE_ENVIRONMENT=us-east-1
+PINECONE_INDEX=index-name
 EOF
-    
-    print_warning "Please edit .env file with your actual API keys"
+    fi
+
+    print_warning "Please edit $BACKEND_ENV_FILE with your actual API keys"
     print_info "Get Anthropic key: https://console.anthropic.com/"
     print_info "Get Pinecone key: https://www.pinecone.io/"
     echo ""
-    echo "After setting up .env, run this script again."
+    echo "After setting up $BACKEND_ENV_FILE, run this script again."
     exit 1
 else
-    print_success ".env file found"
+    print_success "$BACKEND_ENV_FILE found"
 fi
 
-# Check if API keys are set
-if grep -q "your_anthropic_api_key_here" .env; then
-    print_error "ANTHROPIC_API_KEY not configured in .env"
+# Check if API keys are set in backend/.env
+ANTHROPIC_API_KEY_VALUE="$(get_env_value ANTHROPIC_API_KEY "$BACKEND_ENV_FILE")"
+PINECONE_API_KEY_VALUE="$(get_env_value PINECONE_API_KEY "$BACKEND_ENV_FILE")"
+
+if [ -z "$ANTHROPIC_API_KEY_VALUE" ] || [ "$ANTHROPIC_API_KEY_VALUE" = "your_anthropic_api_key_here" ] || [ "$ANTHROPIC_API_KEY_VALUE" = "sk-ant-xxxx" ]; then
+    print_error "ANTHROPIC_API_KEY not configured in $BACKEND_ENV_FILE"
     exit 1
 fi
 
-if grep -q "your_pinecone_api_key_here" .env; then
-    print_error "PINECONE_API_KEY not configured in .env"
+if [ -z "$PINECONE_API_KEY_VALUE" ] || [ "$PINECONE_API_KEY_VALUE" = "your_pinecone_api_key_here" ] || [ "$PINECONE_API_KEY_VALUE" = "xxxx" ]; then
+    print_error "PINECONE_API_KEY not configured in $BACKEND_ENV_FILE"
     exit 1
 fi
 
