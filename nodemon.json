@@ -1,0 +1,6 @@
+{
+  "watch": ["backend/**/*.ts", "backend/**/*.js"],
+  "ext": "ts,js,json",
+  "ignore": ["client/*", "node_modules/*"],
+  "exec": "ts-node -P backend/tsconfig.json ./backend/src/server.ts"
+}
