@@ -5,6 +5,12 @@ let cached: {
   index: ReturnType<Pinecone["index"]>;
 } | null = null;
 
+export function isPineconeConfigured() {
+  const apiKey = process.env.PINECONE_API_KEY;
+  const indexName = process.env.PINECONE_INDEX;
+  return Boolean(apiKey && apiKey.trim() && indexName && indexName.trim());
+}
+
 export function getPinecone() {
   if (cached) return cached;
 

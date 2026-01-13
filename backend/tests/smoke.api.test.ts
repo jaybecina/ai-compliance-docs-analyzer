@@ -20,6 +20,16 @@ jest.mock("../src/services/claude.service", () => ({
     }
     return "Mock AI response";
   }),
+  isClaudeConfigured: () => true,
+  tryAskClaude: jest.fn(async (prompt: string) => {
+    if (prompt.includes("Format your response as JSON")) {
+      return JSON.stringify({
+        summary: "Short summary of the compliance document.",
+        keyPoints: ["PPE required", "Fall arrest", "Training"],
+      });
+    }
+    return "Mock AI response";
+  }),
 }));
 
 jest.mock("../src/services/embedding.service", () => ({
@@ -41,6 +51,7 @@ jest.mock("../src/services/pinecone.service", () => ({
     upsert: upsertMock,
     query: queryMock,
   }),
+  isPineconeConfigured: () => true,
 }));
 
 describe("API smoke test", () => {

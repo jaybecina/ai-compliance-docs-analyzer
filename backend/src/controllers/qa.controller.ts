@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { embeddings } from "../services/embedding.service";
-import { getIndex } from "../services/pinecone.service";
+import { getIndex, isPineconeConfigured } from "../services/pinecone.service";
 import { askClaude } from "../services/claude.service";
 
 export async function askQuestion(req: Request, res: Response) {
@@ -9,6 +9,14 @@ export async function askQuestion(req: Request, res: Response) {
 
     if (!question) {
       return res.status(400).json({ error: "Question is required" });
+    }
+
+    if (!isPineconeConfigured()) {
+      return res.status(503).json({
+        error: "Vector search unavailable",
+        details:
+          "Pinecone is not configured (missing PINECONE_API_KEY/PINECONE_INDEX).",
+      });
     }
 
     const queryEmbedding = await embeddings.embedQuery(question);

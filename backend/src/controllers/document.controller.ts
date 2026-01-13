@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import { extractPdfText } from "../services/pdf.service";
 import { chunkText } from "../utils/chunkText";
 import { embeddings } from "../services/embedding.service";
-import { getIndex } from "../services/pinecone.service";
-import { askClaude } from "../services/claude.service";
+import { getIndex, isPineconeConfigured } from "../services/pinecone.service";
+import { tryAskClaude } from "../services/claude.service";
 import { documentStorage } from "../services/storage.service";
 import crypto from "crypto";
 
@@ -48,17 +48,22 @@ Format your response as JSON:
 }
 `;
 
-    const analysisResponse = await askClaude(summaryPrompt);
+    const analysisResponse = await tryAskClaude(summaryPrompt);
     let summary = "Document uploaded successfully";
     let keyPoints: string[] = [];
 
     try {
-      const analysis = JSON.parse(analysisResponse);
-      summary = analysis.summary;
-      keyPoints = analysis.keyPoints;
+      if (analysisResponse) {
+        const analysis = JSON.parse(analysisResponse);
+        summary = analysis.summary;
+        keyPoints = analysis.keyPoints;
+      } else {
+        summary = text.substring(0, 200);
+        keyPoints = ["AI summary unavailable (missing ANTHROPIC_API_KEY)"];
+      }
     } catch (e) {
       // If JSON parsing fails, extract manually
-      summary = analysisResponse.substring(0, 200);
+      summary = (analysisResponse ?? text).substring(0, 200);
       keyPoints = ["Analysis pending"];
     }
 
@@ -71,8 +76,14 @@ Format your response as JSON:
       }))
     );
 
-    const index = getIndex();
-    await index.upsert(vectors);
+    if (isPineconeConfigured()) {
+      const index = getIndex();
+      await index.upsert(vectors);
+    } else {
+      console.warn(
+        "Pinecone not configured; skipping vector upsert (missing PINECONE_API_KEY/PINECONE_INDEX)."
+      );
+    }
 
     // Store document metadata
     documentStorage.save({

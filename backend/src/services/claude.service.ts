@@ -2,6 +2,11 @@ import Anthropic from "@anthropic-ai/sdk";
 
 let cached: Anthropic | null = null;
 
+export function isClaudeConfigured() {
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  return Boolean(apiKey && apiKey.trim());
+}
+
 function getAnthropic() {
   if (cached) return cached;
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -25,4 +30,9 @@ export async function askClaude(prompt: string) {
     return firstBlock.text;
   }
   throw new Error("Unexpected response type from Claude");
+}
+
+export async function tryAskClaude(prompt: string) {
+  if (!isClaudeConfigured()) return null;
+  return askClaude(prompt);
 }

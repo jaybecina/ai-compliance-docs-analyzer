@@ -66,5 +66,21 @@ export function createApp(options?: { dbPath?: string }) {
   // Optional alias used by some uptime checks.
   app.use("/health", healthRoutes);
 
+  // Final error handler: ensures serverless errors return JSON.
+  app.use(
+    (
+      err: unknown,
+      _req: express.Request,
+      res: express.Response,
+      _next: express.NextFunction
+    ) => {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error("Unhandled error:", err);
+      res
+        .status(500)
+        .json({ error: "Internal Server Error", details: message });
+    }
+  );
+
   return app;
 }
