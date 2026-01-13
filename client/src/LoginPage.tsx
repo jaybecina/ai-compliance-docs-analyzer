@@ -12,7 +12,10 @@ import {
   Divider,
   Chip,
   MenuItem,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 
 import { getApiBase } from "./apiBase";
@@ -23,6 +26,7 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [name, setName] = useState("");
   const [role, setRole] = useState<"demo" | "analyst" | "admin">("demo");
   const [error, setError] = useState("");
@@ -146,11 +150,16 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
                 autoFocus
                 required
                 disabled={loading}
-                sx={{ mb: 2 }}
+                sx={{
+                  mb: 2,
+                  "& .MuiInputBase-input": {
+                    color: "text.primary",
+                  },
+                }}
               />
               <TextField
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 fullWidth
                 margin="normal"
                 value={password}
@@ -158,6 +167,20 @@ export default function LoginPage({ onLogin }: { onLogin: () => void }) {
                 required
                 disabled={loading}
                 sx={{ mb: 3 }}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={() => setShowPassword(!showPassword)}
+                        onMouseDown={(e) => e.preventDefault()}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
               <Button
                 type="submit"

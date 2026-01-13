@@ -28,11 +28,26 @@ export default function DocumentList({
         <Typography variant="h6" gutterBottom>
           Uploaded Documents
         </Typography>
-        <List>
+        <List sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           {documents.map((doc, idx) => (
-            <ListItem disablePadding key={doc.id || doc.filename + idx}>
+            <ListItem
+              disablePadding
+              key={doc.id || doc.filename + idx}
+              sx={{
+                border: "1px solid",
+                borderColor: "divider",
+                borderRadius: 2,
+                overflow: "hidden",
+                transition: "all 0.2s",
+                "&:hover": {
+                  borderColor: "primary.main",
+                  boxShadow: 1,
+                },
+              }}
+            >
               <ListItemButton
                 onClick={() => onSelect({ id: doc.id, filename: doc.filename })}
+                sx={{ py: 2 }}
               >
                 <ListItemText
                   primary={doc.filename}

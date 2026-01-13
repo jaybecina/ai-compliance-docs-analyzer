@@ -1,5 +1,14 @@
 import "./loadEnv";
 
+// Polyfill DOMMatrix for serverless environments (pdf-parse dependency)
+if (typeof global !== "undefined" && !(global as any).DOMMatrix) {
+  (global as any).DOMMatrix = class DOMMatrix {
+    constructor() {
+      // Minimal polyfill - pdf-parse text extraction doesn't need actual implementation
+    }
+  };
+}
+
 import { createApp } from "./app";
 
 const app = createApp();
