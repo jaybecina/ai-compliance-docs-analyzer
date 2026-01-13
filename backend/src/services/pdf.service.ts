@@ -1,14 +1,21 @@
 import { PDFParse } from "pdf-parse";
+import { pathToFileURL } from "node:url";
 
-// Disable worker globally for serverless environments
-// @ts-ignore - setting internal config
-if (typeof globalThis !== "undefined" && !globalThis.pdfjsLib) {
-  // @ts-ignore
-  globalThis.PDFJS_WORKER_SRC = false;
+function configurePdfWorker(): void {
+  try {
+    const workerPath = require.resolve(
+      "pdf-parse/dist/pdf-parse/cjs/pdf.worker.mjs"
+    );
+    const workerSrc = pathToFileURL(workerPath).href;
+    PDFParse.setWorker(workerSrc);
+  } catch {
+    // Best-effort: if resolution fails, pdf-parse/pdfjs will fall back to its defaults.
+  }
 }
 
 export async function extractPdfText(buffer: Buffer): Promise<string> {
   try {
+    configurePdfWorker();
     console.log(
       "PDF service: Starting extraction, buffer length:",
       buffer.length
@@ -20,10 +27,10 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
       uint8Array.length
     );
 
-    const parser = new PDFParse(uint8Array);
-    console.log(
-      "PDF service: Parser created (worker disabled), calling getText()"
-    );
+    // Serverless/Vercel: ensure the worker entrypoint is resolvable at runtime.
+    // (Vercel bundling can otherwise cause "Setting up fake worker failed".)
+    const parser = new PDFParse({ data: uint8Array });
+    console.log("PDF service: Parser created, calling getText()");
 
     const data = await parser.getText();
     console.log(
@@ -37,6 +44,7 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
       stack: error instanceof Error ? error.stack : undefined,
       name: error instanceof Error ? error.name : undefined,
     });
-    throw new Error("Failed to parse PDF");
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`Failed to parse PDF: ${message}`);
   }
 }
