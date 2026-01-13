@@ -16,7 +16,9 @@ import {
 } from "@mui/material";
 import { CompareArrows } from "@mui/icons-material";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { getApiBase } from "./apiBase";
+
+const API_URL = getApiBase();
 
 interface Doc {
   id: string;

@@ -16,7 +16,9 @@ interface QnAProps {
   docId?: string;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { getApiBase } from "./apiBase";
+
+const API_URL = getApiBase();
 
 export default function QnABox({ docId }: QnAProps) {
   const [question, setQuestion] = useState("");

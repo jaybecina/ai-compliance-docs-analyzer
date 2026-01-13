@@ -26,7 +26,9 @@ import DocumentList from "./DocumentList";
 import QnABox from "./QnABox";
 import CompareDocuments from "./CompareDocuments";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { getApiBase } from "./apiBase";
+
+const API_URL = getApiBase();
 
 type User = {
   username: string;

@@ -15,7 +15,9 @@ import {
 } from "@mui/material";
 import axios from "axios";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { getApiBase } from "./apiBase";
+
+const API_URL = getApiBase();
 
 export default function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [mode, setMode] = useState<"login" | "register">("login");

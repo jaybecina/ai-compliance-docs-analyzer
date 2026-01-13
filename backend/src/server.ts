@@ -1,12 +1,19 @@
-import dotenv from "dotenv";
-import path from "path";
-dotenv.config({ path: path.join(__dirname, "../.env") });
-import { createApp } from "./app";
+import "./loadEnv";
 
-const PORT = process.env.PORT || 8000;
+import { createApp } from "./app";
 
 const app = createApp();
 
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+// Vercel (@vercel/node) expects the module to export a handler (Express app is supported).
+// For local dev, allow running `ts-node src/server.ts` to start a listener.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const isDirectRun =
+  typeof require !== "undefined" && (require as any).main === module;
+if (isDirectRun) {
+  const PORT = process.env.PORT || 8000;
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}
+
+export default app;

@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { embeddings } from "../services/embedding.service";
-import { index } from "../services/pinecone.service";
+import { getIndex } from "../services/pinecone.service";
 import { askClaude } from "../services/claude.service";
 
 export async function askQuestion(req: Request, res: Response) {
@@ -24,6 +24,7 @@ export async function askQuestion(req: Request, res: Response) {
       queryOptions.filter = { docId: { $eq: docId } };
     }
 
+    const index = getIndex();
     const results = await index.query(queryOptions);
 
     const context = results.matches

@@ -1,15 +1,29 @@
 import express from "express";
 import cors from "cors";
-import authRoutes from "./routes/auth.route";
-import documentRoutes from "./routes/document.route";
-import qaRoutes from "./routes/qa.route";
-import compareRoutes from "./routes/compare.route";
-import { initAuthDb } from "./services/authDb.service";
+import healthRoutes from "./routes/health.route";
+
+function lazyRouter(
+  loader: () => Promise<{ default: express.Router }>
+): express.RequestHandler {
+  let cached: express.Router | null = null;
+  let loading: Promise<express.Router> | null = null;
+
+  return async (req, res, next) => {
+    try {
+      if (!cached) {
+        if (!loading) loading = loader().then((m) => m.default);
+        cached = await loading;
+      }
+      // Express Router is a callable middleware.
+      return (cached as unknown as express.RequestHandler)(req, res, next);
+    } catch (err) {
+      return next(err);
+    }
+  };
+}
 
 export function createApp(options?: { dbPath?: string }) {
   const app = express();
-
-  initAuthDb({ dbPath: options?.dbPath });
 
   app.use(
     cors({
@@ -22,19 +36,35 @@ export function createApp(options?: { dbPath?: string }) {
 
   app.use(express.json());
 
-  app.get("/api/health", (req, res) => {
-    console.log("✅ Health check received from frontend");
-    res.json({
-      status: "ok",
-      message: "Backend server is running",
-      timestamp: new Date().toISOString(),
-    });
-  });
+  // API router: all endpoints live under /api/*
+  const api = express.Router();
 
-  app.use("/api/auth", authRoutes);
-  app.use("/api/documents", documentRoutes);
-  app.use("/api/qa", qaRoutes);
-  app.use("/api/compare", compareRoutes);
+  // Lightweight health checks that should not depend on DB/env/external services.
+  api.use("/health", healthRoutes);
+
+  // Lazy-load heavier routes so serverless health checks don't crash
+  // due to missing env vars or native dependencies during cold start.
+  api.use(
+    "/auth",
+    lazyRouter(() => import("./routes/auth.route"))
+  );
+  api.use(
+    "/documents",
+    lazyRouter(() => import("./routes/document.route"))
+  );
+  api.use(
+    "/qa",
+    lazyRouter(() => import("./routes/qa.route"))
+  );
+  api.use(
+    "/compare",
+    lazyRouter(() => import("./routes/compare.route"))
+  );
+
+  app.use("/api", api);
+
+  // Optional alias used by some uptime checks.
+  app.use("/health", healthRoutes);
 
   return app;
 }

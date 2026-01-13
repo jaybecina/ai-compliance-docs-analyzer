@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { extractPdfText } from "../services/pdf.service";
 import { chunkText } from "../utils/chunkText";
 import { embeddings } from "../services/embedding.service";
-import { index } from "../services/pinecone.service";
+import { getIndex } from "../services/pinecone.service";
 import { askClaude } from "../services/claude.service";
 import { documentStorage } from "../services/storage.service";
 import crypto from "crypto";
@@ -71,6 +71,7 @@ Format your response as JSON:
       }))
     );
 
+    const index = getIndex();
     await index.upsert(vectors);
 
     // Store document metadata

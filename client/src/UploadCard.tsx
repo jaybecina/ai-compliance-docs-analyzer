@@ -11,7 +11,9 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api";
+import { getApiBase } from "./apiBase";
+
+const API_URL = getApiBase();
 
 interface UploadProps {
   onUploadSuccess: (doc: {
