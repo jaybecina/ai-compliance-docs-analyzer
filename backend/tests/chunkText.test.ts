@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "@jest/globals";
 import { chunkText } from "../src/utils/chunkText";
 
 describe("chunkText", () => {
@@ -8,18 +8,6 @@ describe("chunkText", () => {
     expect(chunks[0]).toBe("hello");
   });
 
-  it("applies overlap between chunks", () => {
-    const text = "abcdefghijklmnopqrstuvwxyz";
-    const chunks = chunkText(text, 10, 2);
-
-    expect(chunks[0]).toBe(text.slice(0, 10));
-    expect(chunks[1].startsWith(text.slice(8, 10))).toBe(true);
-  });
-});
-import { describe, expect, it } from "vitest";
-import { chunkText } from "../src/utils/chunkText";
-
-describe("chunkText", () => {
   it("creates overlapping chunks", () => {
     const text = "abcdefghijklmnopqrstuvwxyz";
     const chunks = chunkText(text, 10, 2);

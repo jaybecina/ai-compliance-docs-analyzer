@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "@jest/globals";
 import fs from "fs";
 import os from "os";
 import path from "path";
@@ -43,9 +43,9 @@ describe("applyMigrationsOrEnsureSchema", () => {
 
     try {
       // Create a fake migrations folder structure:
-      // backend/drizzle/meta/_journal.json
-      // backend/drizzle/0000_init.sql
-      const migrationsFolder = path.join(tmp, "backend", "drizzle");
+      // drizzle/meta/_journal.json
+      // drizzle/0000_init.sql
+      const migrationsFolder = path.join(tmp, "drizzle");
       fs.mkdirSync(path.join(migrationsFolder, "meta"), { recursive: true });
 
       const tag = "0000_init";
@@ -109,7 +109,7 @@ describe("applyMigrationsOrEnsureSchema", () => {
     const tmp = makeTempDir("ai-compliance-freshmigrate-");
 
     try {
-      const migrationsFolder = path.join(tmp, "backend", "drizzle");
+      const migrationsFolder = path.join(tmp, "drizzle");
       fs.mkdirSync(path.join(migrationsFolder, "meta"), { recursive: true });
 
       const tag = "0000_init";

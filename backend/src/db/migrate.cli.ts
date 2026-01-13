@@ -10,8 +10,7 @@ async function main() {
   const result = applyMigrationsOrEnsureSchema(ctx);
   ctx.sqlite.close();
 
-  const dbPath =
-    process.env.SQLITE_DB_PATH?.trim() || "backend/data/app.sqlite";
+  const dbPath = process.env.SQLITE_DB_PATH?.trim() || "data/app.sqlite";
   console.log(`✅ Migrations complete (${result.mode}). DB: ${dbPath}`);
 }
 

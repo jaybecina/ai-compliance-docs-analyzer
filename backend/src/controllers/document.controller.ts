@@ -5,7 +5,7 @@ import { embeddings } from "../services/embedding.service";
 import { index } from "../services/pinecone.service";
 import { askClaude } from "../services/claude.service";
 import { documentStorage } from "../services/storage.service";
-import { v4 as uuid } from "uuid";
+import crypto from "crypto";
 
 export async function uploadDocument(req: Request, res: Response) {
   try {
@@ -29,7 +29,7 @@ export async function uploadDocument(req: Request, res: Response) {
     const chunks = chunkText(text);
     console.log(`✅ Created ${chunks.length} chunks`);
 
-    const docId = uuid();
+    const docId = crypto.randomUUID();
     console.log(`🆔 Document ID: ${docId}`);
 
     // Generate summary and key points
@@ -65,7 +65,7 @@ Format your response as JSON:
     // Store vectors in Pinecone
     const vectors = await Promise.all(
       chunks.map(async (chunk) => ({
-        id: uuid(),
+        id: crypto.randomUUID(),
         values: await embeddings.embedQuery(chunk),
         metadata: { text: chunk, filename: file.originalname, docId },
       }))
@@ -128,7 +128,8 @@ export async function getAllDocuments(req: Request, res: Response) {
 
 export async function getDocumentById(req: Request, res: Response) {
   try {
-    const { id } = req.params;
+    const rawId = req.params.id;
+    const id = Array.isArray(rawId) ? rawId[0] : rawId;
     const document = documentStorage.getById(id);
 
     if (!document) {

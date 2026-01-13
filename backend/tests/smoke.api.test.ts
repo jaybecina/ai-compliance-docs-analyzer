@@ -1,16 +1,16 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import request from "supertest";
 
 // Mock the expensive/external dependencies used by controllers
-vi.mock("../src/services/pdf.service", () => ({
-  extractPdfText: vi.fn(
+jest.mock("../src/services/pdf.service", () => ({
+  extractPdfText: jest.fn(
     async () =>
       "PPE is mandatory for working at heights. Fall arrest systems required."
   ),
 }));
 
-vi.mock("../src/services/claude.service", () => ({
-  askClaude: vi.fn(async (prompt: string) => {
+jest.mock("../src/services/claude.service", () => ({
+  askClaude: jest.fn(async (prompt: string) => {
     // Upload expects JSON for summary/key points
     if (prompt.includes("Format your response as JSON")) {
       return JSON.stringify({
@@ -22,21 +22,21 @@ vi.mock("../src/services/claude.service", () => ({
   }),
 }));
 
-vi.mock("../src/services/embedding.service", () => ({
+jest.mock("../src/services/embedding.service", () => ({
   embeddings: {
-    embedQuery: vi.fn(async () => Array.from({ length: 1024 }, () => 0)),
+    embedQuery: jest.fn(async () => Array.from({ length: 1024 }, () => 0)),
   },
 }));
 
-const upsertMock = vi.fn(async () => ({ upsertedCount: 1 }));
-const queryMock = vi.fn(async () => ({
+const upsertMock = jest.fn(async () => ({ upsertedCount: 1 }));
+const queryMock = jest.fn(async () => ({
   matches: [
     { metadata: { text: "PPE is mandatory for working at heights." } },
     { metadata: { text: "Fall arrest systems required." } },
   ],
 }));
 
-vi.mock("../src/services/pinecone.service", () => ({
+jest.mock("../src/services/pinecone.service", () => ({
   index: {
     upsert: upsertMock,
     query: queryMock,

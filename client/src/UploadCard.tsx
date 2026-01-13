@@ -1,6 +1,6 @@
-import React, { useRef, useState } from "react";
+import type { ChangeEvent } from "react";
+import { useRef, useState } from "react";
 import {
-  Box,
   Button,
   Card,
   CardContent,
@@ -28,7 +28,7 @@ export default function UploadCard({ onUploadSuccess }: UploadProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setLoading(true);

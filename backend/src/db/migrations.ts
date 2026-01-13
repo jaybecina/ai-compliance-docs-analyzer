@@ -56,7 +56,7 @@ function baselineExistingDb(sqlite: SqliteDb, migrationsFolder: string) {
 }
 
 export function applyMigrationsOrEnsureSchema(ctx: DbContext) {
-  const migrationsFolder = path.join(process.cwd(), "backend", "drizzle");
+  const migrationsFolder = path.join(process.cwd(), "drizzle");
   const journalPath = path.join(migrationsFolder, "meta", "_journal.json");
 
   // If no generated migrations exist yet, keep the old behavior.

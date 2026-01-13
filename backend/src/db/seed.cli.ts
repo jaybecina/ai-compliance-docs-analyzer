@@ -15,8 +15,7 @@ async function main() {
 
   ctx.sqlite.close();
 
-  const dbPath =
-    process.env.SQLITE_DB_PATH?.trim() || "backend/data/app.sqlite";
+  const dbPath = process.env.SQLITE_DB_PATH?.trim() || "data/app.sqlite";
 
   console.log(
     `✅ Seed complete (${migrated.mode}). DB: ${dbPath}. Set SEED_USERS_JSON to control seeded accounts.`

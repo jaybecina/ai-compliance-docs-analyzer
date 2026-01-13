@@ -1,26 +1,26 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, jest } from "@jest/globals";
 import request from "supertest";
 
 // Mock external services so createApp can be imported without env vars
-vi.mock("../src/services/pinecone.service", () => ({
+jest.mock("../src/services/pinecone.service", () => ({
   index: {
-    upsert: vi.fn(async () => ({ upsertedCount: 1 })),
-    query: vi.fn(async () => ({ matches: [] })),
+    upsert: jest.fn(async () => ({ upsertedCount: 1 })),
+    query: jest.fn(async () => ({ matches: [] })),
   },
 }));
 
-vi.mock("../src/services/embedding.service", () => ({
+jest.mock("../src/services/embedding.service", () => ({
   embeddings: {
-    embedQuery: vi.fn(async () => Array.from({ length: 1024 }, () => 0)),
+    embedQuery: jest.fn(async () => Array.from({ length: 1024 }, () => 0)),
   },
 }));
 
-vi.mock("../src/services/pdf.service", () => ({
-  extractPdfText: vi.fn(async () => "dummy"),
+jest.mock("../src/services/pdf.service", () => ({
+  extractPdfText: jest.fn(async () => "dummy"),
 }));
 
-vi.mock("../src/services/claude.service", () => ({
-  askClaude: vi.fn(async () => "Mock AI"),
+jest.mock("../src/services/claude.service", () => ({
+  askClaude: jest.fn(async () => "Mock AI"),
 }));
 
 import { createDbContext, ensureSchema, resolveSqlitePath } from "../src/db";

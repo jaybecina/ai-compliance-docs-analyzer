@@ -14,7 +14,7 @@ export type DbContext = {
 export function resolveSqlitePath(dbPath: string | undefined) {
   const resolved = dbPath?.trim()
     ? dbPath.trim()
-    : path.join(process.cwd(), "backend", "data", "app.sqlite");
+    : path.join(process.cwd(), "data", "app.sqlite");
 
   if (resolved === ":memory:") return resolved;
 
