@@ -37,10 +37,10 @@ const queryMock = jest.fn(async () => ({
 }));
 
 jest.mock("../src/services/pinecone.service", () => ({
-  index: {
+  getIndex: () => ({
     upsert: upsertMock,
     query: queryMock,
-  },
+  }),
 }));
 
 describe("API smoke test", () => {

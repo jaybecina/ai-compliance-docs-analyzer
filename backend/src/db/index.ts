@@ -12,15 +12,28 @@ export type DbContext = {
 };
 
 export function resolveSqlitePath(dbPath: string | undefined) {
-  const resolved = dbPath?.trim()
-    ? dbPath.trim()
+  const isVercel = process.env.VERCEL === "1";
+  const trimmed = dbPath?.trim();
+
+  // Vercel/Serverless file system is read-only except for /tmp.
+  // If SQLITE_DB_PATH is relative (or missing), place the DB in /tmp.
+  const resolved = trimmed
+    ? trimmed
+    : isVercel
+    ? path.join("/tmp", "app.sqlite")
     : path.join(process.cwd(), "data", "app.sqlite");
 
   if (resolved === ":memory:") return resolved;
 
-  const dir = path.dirname(resolved);
+  const resolvedAbsolute = path.isAbsolute(resolved)
+    ? resolved
+    : isVercel
+    ? path.join("/tmp", resolved)
+    : path.join(process.cwd(), resolved);
+
+  const dir = path.dirname(resolvedAbsolute);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-  return resolved;
+  return resolvedAbsolute;
 }
 
 export function createDbContext(dbPath?: string): DbContext {
