@@ -1,5 +1,12 @@
 import { PDFParse } from "pdf-parse";
 
+// Disable worker globally for serverless environments
+// @ts-ignore - setting internal config
+if (typeof globalThis !== "undefined" && !globalThis.pdfjsLib) {
+  // @ts-ignore
+  globalThis.PDFJS_WORKER_SRC = false;
+}
+
 export async function extractPdfText(buffer: Buffer): Promise<string> {
   try {
     console.log(
@@ -14,7 +21,9 @@ export async function extractPdfText(buffer: Buffer): Promise<string> {
     );
 
     const parser = new PDFParse(uint8Array);
-    console.log("PDF service: Parser created, calling getText()");
+    console.log(
+      "PDF service: Parser created (worker disabled), calling getText()"
+    );
 
     const data = await parser.getText();
     console.log(
